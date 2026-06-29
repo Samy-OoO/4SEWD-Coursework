@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Product Form</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <nav>
+            <a href="index.htm">Home</a>
+            <a href="products.htm">Products</a>
+            <a href="suppliers.htm">Suppliers</a>
+        </nav>
+        
+        <div class="container">
+            <div class="card">
+                <h2>Add Product</h2>
+                <br><hr><br>
+
+                <form>
+                    <label>Product Name</label>
+                    <input type="text">
+
+                    <label>Description</label>
+                    <textarea></textarea>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="number">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number">
+                        </div>
+                    </div>
+                    <label>Supplier</label>
+                    <select class="select-bar">
+                        <option>ABC Suppliers</option>
+                        <option>XYZ Suppliers</option>
+                        <option>IJK Suppliers</option>
+                    </select>
+
+                    <br><br><hr><br><br>
+                    <label>Product Image</label>    
+                    <input type="file" id="productImage" hidden>
+                    <label class="file-input" for="productImage">📁</label>
+
+                    <br><br>
+                    <button>Save Product</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

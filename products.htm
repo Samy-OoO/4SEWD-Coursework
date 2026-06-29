@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Products</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+            <nav>
+                <a href="index.htm">Home</a>
+                <a href="#">Products</a>
+                <a href="suppliers.htm">Suppliers</a>
+            </nav>
+            
+        <div class="container">
+            <h1>Products List</h1>
+            <p class="form-link"><a href="productForm.htm">Add / edit a product? Click here...</a></p>
+
+            <br><hr><br>
+            <input type="text" placeholder="Search product..." class="search-bar">
+            <button class="search-btn">🔎</button>
+
+            <select class="select-bar" style="float:right">
+                <option>All Suppliers</option>
+                <option>ABC Suppliers</option>
+                <option>XYZ Suppliers</option>
+                <option>IJK Suppliers</option>
+            </select>
+            
+            <table>
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Supplier</th>
+                </tr>
+                <tr>
+                    <td><a href="viewProduct.htm"><img src="/images/laptop.webp" class="product-image" alt="Laptop"></a></td>
+                    <td>Laptop</td>
+                    <td>$1000</td>
+                    <td>15</td>
+                    <td>XYZ Suppliers</td>
+                </tr>
+                <tr>
+                    <td><img src="/images/pot.webp" class="product-image" alt="Pot"></td>
+                    <td>Pot</td>
+                    <td>$3</td>
+                    <td>20</td>
+                    <td>ABC Suppliers</td>
+                </tr>
+                <tr class="low-stock">
+                    <td><img src="/images/tennis.jfif" class="product-image" alt="Tennis Racket"></td>
+                    <td>Tennis Racket</td>
+                    <td>$24.99</td>
+                    <td>4</td>
+                    <td>IJK Suppliers</td>
+                </tr>
+                <tr>
+                    <td><img src="/images/headphones.webp" class="product-image" alt="Headphones"></td>
+                    <td>Headphones</td>
+                    <td>$30</td>
+                    <td>10</td>
+                    <td>XYZ Suppliers</td>
+                </tr>
+                <tr>
+                    <td><img src="/images/ball.webp" class="product-image" alt="Tennis ball"></td>
+                    <td>Tennis Ball</td>
+                    <td>$5</td>
+                    <td>25</td>
+                    <td>IJK Suppliers</td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>
