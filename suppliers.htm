@@ -5,13 +5,17 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Suppliers</title>
         <link rel="stylesheet" href="style.css">
+        <script src="js/auth.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/suppliers.js"></script>
     </head>
 
     <body>
         <nav>
-            <a href="index.htm">Home</a>
+            <a href="home.htm">Home</a>
             <a href="products.htm">Products</a>
             <a href="#">Suppliers</a>
+            <a onclick="logout()" style="float:right">Log Out</a>
         </nav>
         
         <div class="container">
@@ -20,29 +24,20 @@
             <p class="form-link"><a href="supplierForm.htm">Add / edit a supplier? Click here...</a></p>
             <br><hr><br>
 
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                </tr>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
 
-                <tr>
-                    <td>ABC Suppliers</td>
-                    <td>abc@gmail.com</td>
-                    <td>9800000000</td>
-                </tr>
-                <tr>
-                    <td>XYZ Suppliers</td>
-                    <td>xyz@gmail.com</td>
-                    <td>9811111111</td>
-                </tr>
-                <tr>
-                    <td>IJK Suppliers</td>
-                    <td>ijk@gmail.com</td>
-                    <td>9877777777</td>
-                </tr>
-            </table>
+                    <tbody class="supplier-table-body">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </body>
 </html>

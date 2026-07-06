@@ -5,43 +5,44 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Product View</title>
         <link rel="stylesheet" href="style.css">
+        <script src="js/auth.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/viewProduct.js"></script>
     </head>
     <body>
         <nav>
-            <a href="index.htm">Home</a>
+            <a href="home.htm">Home</a>
             <a href="products.htm">Products</a>
             <a href="suppliers.htm">Suppliers</a>
+            <a onclick="logout()" style="float:right">Log Out</a>
         </nav>
 
         <div class="container">
 
             <div class="card product-details">
+                <img class="product-image" alt="Product Image">
 
-                <img class="product-image" src="/images/laptop.webp" alt="Product Image">
-
-                <h1>Laptop</h1>
-
-                <p>
+                <h1 id="prod-name">Laptop</h1>
+                <p id="prod-desc">
                     <strong>Description:</strong>
                     High performance laptop for office and gaming.
                 </p>
 
-                <p>
+                <p id="prod-price">
                     <strong>Price:</strong>
                     $900
                 </p>
 
-                <p>
+                <p id="prod-qty">
                     <strong>Quantity:</strong>
                     3 items
                 </p>
 
-                <p>
+                <p id="prod-supplier">
                     <strong>Supplier:</strong>
                     ABC Suppliers
                 </p>
                 <button><a href="/productForm.htm" style="color:white; text-decoration: none;">Edit Product</a></button>
-
             </div>
         </div>
     </body>
