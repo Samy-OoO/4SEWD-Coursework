@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import productService from '../services/productService';
 import supplierService from '../services/supplierService';
+import { useAuth } from './AuthContext';
 
 const DataContext = createContext(null);
 
@@ -15,6 +16,7 @@ function normalizeProduct(product) {
 }
 
 export function DataProvider({ children }) {
+  const { isLoggedIn } = useAuth();
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,15 +39,24 @@ export function DataProvider({ children }) {
   // Fetch once on mount. `ignore` guards against setting state from a
   // stale request if this component unmounts before the fetch resolves.
   useEffect(() => {
+    if (!isLoggedIn) {
+      setProducts([]);
+      setSuppliers([]);
+      setLoading(false);
+      return;
+    }
+
     let ignore = false;
+
     (async () => {
       await refresh();
       if (ignore) return;
     })();
+
     return () => {
       ignore = true;
     };
-  }, [refresh]);
+  }, [isLoggedIn, refresh]);
 
   async function addProduct(product) {
     const created = await productService.create(product);
