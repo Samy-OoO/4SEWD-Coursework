@@ -38,10 +38,16 @@ export function AuthProvider({ children }) {
 
   async function login(credentials) {
     setIsLoading(true);
+
     try {
       const data = await authService.login(credentials);
+
+      localStorage.setItem('authUser', JSON.stringify(data.user));
+      localStorage.setItem('authToken', data.token);
+
       setUser(data.user);
       setToken(data.token);
+
       return data;
     } finally {
       setIsLoading(false);
@@ -50,10 +56,16 @@ export function AuthProvider({ children }) {
 
   async function register(credentials) {
     setIsLoading(true);
+
     try {
       const data = await authService.register(credentials);
+
+      localStorage.setItem('authUser', JSON.stringify(data.user));
+      localStorage.setItem('authToken', data.token);
+
       setUser(data.user);
       setToken(data.token);
+
       return data;
     } finally {
       setIsLoading(false);
