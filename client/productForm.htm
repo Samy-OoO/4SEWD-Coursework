@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Product Form</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="js/auth.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/productForm.js"></script>
+    </head>
+    <body>
+        <nav>
+            <a href="home.htm">Home</a>
+            <a href="products.htm">Products</a>
+            <a href="suppliers.htm">Suppliers</a>
+            <a onclick="logout()" style="float:right">Log Out</a>
+        </nav>
+        
+        <div class="container">
+            <div class="card">
+                <h2>Add or Edit Product</h2>
+                <br><hr><br>
+
+                <form id="product-form">
+                    <label>Product Name</label>
+                    <input type="text" name="product-name" id="product-name">
+
+                    <label>Description</label>
+                    <textarea name="product-desc" id="product-desc"></textarea>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="number" name="product-price" id="product-price" step="0.01">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" name="product-qty" id="product-qty">
+                        </div>
+                    </div>
+                    <label>Supplier</label>
+                    <select class="select-bar" name="supplier" id="product-supplier">
+                    </select>
+
+                    <br><br><hr><br><br>
+                    <label>Product Image</label>    
+                    <input type="file" name="product-image" id="product-image" hidden>
+                    <label class="file-input" for="product-image">📁</label>
+
+                    <br><br>
+                    <button>Save Product</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Products</title>
+        <link rel="stylesheet" href="style.css">
+        <script src="js/auth.js"></script>
+        <script src="js/data.js"></script>
+        <script src="js/products.js"></script>
+    </head>
+    <body>
+        <nav>
+            <a href="home.htm">Home</a>
+            <a href="#">Products</a>
+            <a href="suppliers.htm">Suppliers</a>
+            <a onclick="logout()" style="float:right">Log Out</a>
+        </nav>
+            
+        <div class="container">
+            <h1>Products List</h1>
+            <p class="form-link"><a href="productForm.htm">Add / edit a product? Click here...</a></p>
+
+            <br><hr><br>
+            <div class="toolbar">
+                <div class="search-group">
+                    <input type="text" placeholder="Search product..." class="search-bar">
+                    <button class="search-btn">🔎</button>
+                </div>
+                <select class="select-bar" style="float:right">
+                </select>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Supplier</th>
+                        </tr>
+                    </thead>
+                    <tbody class="product-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
