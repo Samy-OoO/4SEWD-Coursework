@@ -1,240 +1,268 @@
 # 4SEWD Coursework — Inventory Management System (Full-Stack)
 
-A full-stack conversion of the Inventory Management System, built following the
-Week 3 tutorial: **Express (layered architecture) + Sequelize + SQLite** on the
-backend, talking to the existing **React + Vite** frontend over a REST API
-with **express-validator** and **CORS**.
+A full-stack Inventory Management System built with **React + Vite** on the client and **Node.js + Express + Sequelize + SQLite** on the server. The application provides CRUD management for products and suppliers, JWT-based admin authentication, validation, image upload, stock movement tracking, dashboard analytics, search/filtering, and responsive UI.
 
-```
+## Project Structure
+
+```text
 4SEWD-Coursework/
-├── client/     React + Vite frontend  (http://localhost:5173)
-└── server/     Express + Sequelize API (http://localhost:3000)
+├── client/     React + Vite frontend
+└── server/     Express + Sequelize REST API
 ```
+
+## Technology Stack
+
+- **Frontend:** React, Vite, React Router, CSS
+- **Backend:** Node.js, Express
+- **Database:** SQLite
+- **ORM:** Sequelize
+- **Validation:** express-validator + HTML5/client-side validation
+- **Authentication:** JWT + bcrypt password hashing
+- **Charts:** Recharts
+- **HTTP:** Fetch API through a shared API service
 
 ## Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+
+- npm
 
 ## Setup
 
 From the project root:
 
 ```bash
-npm run install:all   # installs dependencies in both client/ and server/
-npm run dev            # starts the API and the React dev server together
+npm run install:all
+npm run dev
 ```
 
-- API: http://localhost:3000/api
-- App: http://localhost:5173
+This starts:
 
-The first time the server starts it creates `server/database.sqlite`
-(code-first, via `sequelize.sync()`) and seeds it with the original sample
-products and suppliers. After that, your data persists between restarts.
+- API: `http://localhost:3000/api`
+- Client: `http://localhost:5173`
 
-Environment variables already have working defaults in `client/.env` and
-`server/.env` for local development — `.env.example` files are included in
-both folders as a reference if you ever need to point at a different port or
-API URL.
+The application uses a **code-first Sequelize database setup**. On first startup, Sequelize creates `server/database.sqlite` and the application seeds the initial suppliers, products, and admin user when required. Data then persists between restarts.
 
-### Running client/server separately
+### Run client/server separately
 
 ```bash
-npm run dev:server   # nodemon src/server.js  (server/)
-npm run dev:client   # vite                    (client/)
+npm run dev:server
+npm run dev:client
 ```
 
-### Re-seeding the database
+### Re-seed the database
 
-Delete `server/database.sqlite` and restart the server, or run:
+To reset the local database, delete `server/database.sqlite` and restart the server. The seed process will recreate the database and initial data.
 
-```bash
-npm run seed
+## Environment Variables
+
+Environment-specific values should be stored in `.env` files and are excluded from version control. `.env.example` files are provided as templates.
+
+Server variables include:
+
+```text
+PORT=3000
+DB_PATH=./database.sqlite
+API_BASE_URL=/api
+CLIENT_URL=http://localhost:5173
+NODE_ENV=development
+JWT_SECRET=your-random-secret
+JWT_EXPIRATION=8h
 ```
 
-(only seeds if the suppliers table is currently empty — it never duplicates
-or overwrites existing data)
+**Important:** `JWT_SECRET` is a server-side secret used to sign and verify JWTs. It must not be committed to GitHub, placed in frontend code, or exposed to the browser. For a deployed application, set `JWT_SECRET` in the hosting provider's environment/secrets settings rather than putting the production value in the repository.
 
-## Backend architecture
+## Authentication & Security
 
-Follows the structure from slide 7 of the tutorial:
+The application uses a dedicated `User` entity separate from the business entities.
 
+Authentication flow:
+
+```text
+Login form
+    ↓
+POST /api/auth/login
+    ↓
+User lookup
+    ↓
+bcrypt password verification
+    ↓
+JWT generation
+    ↓
+Frontend stores the authentication token
+    ↓
+Protected API requests include Authorization: Bearer <token>
+    ↓
+Express authentication middleware verifies the JWT
 ```
+
+Passwords are never stored as plaintext. They are hashed using bcrypt before being stored in the `User` table.
+
+The Products and Suppliers API routes are protected by authentication middleware, so authentication is enforced at the API level as well as through the protected React routes.
+
+Registration is also available and creates an admin user with a hashed password.
+
+## Backend Architecture
+
+The backend follows a layered architecture with separation of concerns:
+
+```text
 server/src/
-├── config/       env loading (dotenv) + the Sequelize/SQLite connection
-├── models/       Product, Supplier, and their hasMany/belongsTo association
-├── validators/   express-validator rule chains for each resource
-├── middleware/   validate() (400 on bad input), centralized error handler
-├── services/     business logic + Sequelize queries
-├── controllers/  thin HTTP layer that calls the service functions
-├── routes/       maps URLs to controllers, mounted under /api
-├── app.js        configures Express (middleware, routes) - no listen()
-└── server.js     connects, syncs the DB, seeds, then listens
+├── config/        Environment configuration and Sequelize connection
+├── models/        Sequelize models and relationships
+├── validators/    Server-side validation rules
+├── middleware/    Authentication, validation and error handling
+├── services/      Business logic and database operations
+├── controllers/   HTTP request/response handling
+├── routes/        REST endpoint definitions
+├── utils/         Shared backend utilities/errors
+├── app.js         Express application configuration
+└── server.js      Database setup, seeding and server startup
 ```
 
-`Product` and `Supplier` are related with `Supplier.hasMany(Product)` /
-`Product.belongsTo(Supplier)` — a product stores a `supplierId` foreign key
-rather than a duplicated supplier name string. Deleting a supplier that still
-has products is blocked (409) instead of silently orphaning rows.
+Controllers remain thin and delegate business logic to services. Sequelize handles communication with SQLite.
 
-Product images are still handled the same way the original frontend did it —
-read client-side as a base64 data URL and stored as `TEXT` in SQLite — since
-file-upload middleware wasn't part of this tutorial's scope.
+## Database Entities & Relationships
 
-## API Reference
+The main entities are:
 
-All endpoints are prefixed with `/api`.
+- **User** — authentication/admin account
+- **Supplier** — supplier information
+- **Product** — inventory products
+- **StockMovement** — append-only record of inventory quantity changes
 
-| Method | Endpoint            | Body                                                    | Notes                              |
-|--------|----------------------|-----------------------------------------------------------|-------------------------------------|
-| GET    | `/health`             | —                                                          | Health check                        |
-| GET    | `/products`           | —                                                          | Includes each product's `Supplier`  |
-| GET    | `/products/:id`       | —                                                          | 404 if not found                    |
-| POST   | `/products`           | `name, desc, price, quantity, supplierId, sku?, category?, costPrice?, minStock?, image?, alt?` | 400 on validation failure |
-| PUT    | `/products/:id`       | same as POST                                               | `image` omitted = keep existing one |
-| DELETE | `/products/:id`       | —                                                          | 204 on success                      |
-| GET    | `/products/:id/stock-movements` | —                                                 | This product's ledger, newest first |
-| POST   | `/products/:id/stock-movements` | `change, reason`                                  | Atomic adjust + log; 400 if it would go below zero |
-| GET    | `/products/stock-movements` | —                                                      | Every movement across every product, oldest first (powers the trend chart) |
-| GET    | `/suppliers`           | —                                                          |                                      |
-| GET    | `/suppliers/:id`       | —                                                          | 404 if not found                    |
-| POST   | `/suppliers`           | `name, desc?, email, phone`                                | 400 on validation failure           |
-| PUT    | `/suppliers/:id`       | same as POST                                               |                                      |
-| DELETE | `/suppliers/:id`       | —                                                          | 409 if the supplier still has products |
+Relationships:
 
-Validation errors return `400` with `{ errors: [{ msg, path, ... }] }`,
-matching the express-validator format from the slides.
+```text
+Supplier 1 ──────── * Product
+                         │
+                         │ 1
+                         │
+                         *
+                  StockMovement
+```
 
-## Frontend changes
+A Product stores a `supplierId` foreign key and uses a Sequelize `belongsTo` relationship with Supplier. A Supplier can have many Products. Supplier deletion is prevented while products still reference it.
 
-### Full-stack wiring
-- `src/services/api.js` — shared `fetch` wrapper (base URL from
-  `VITE_API_BASE_URL`, JSON parsing, error normalization)
-- `src/services/productService.js`, `src/services/supplierService.js` — one
-  function per endpoint, isolating API calls from UI code (slide 31)
-- `src/context/DataContext.jsx` — no longer reads/writes `localStorage`;
-  fetches from the API on mount and exposes `loading` / `error` plus
-  `addProduct/updateProduct/deleteProduct` and the supplier equivalents
-- `ProductForm.jsx` / `SupplierForm.jsx` handle both create and edit
-  (routes: `/products/new` & `/products/edit/:id`, `/suppliers/new` &
-  `/suppliers/edit/:id`)
-- `ViewProduct.jsx`'s "Edit Product" button now links to the correct
-  product instead of always going to the blank "new product" form
+Stock movements belong to a Product. Quantity changes and their corresponding ledger entries are performed in a database transaction so the inventory quantity and movement history remain consistent.
 
-Login (`Login.jsx`) is still a client-side credential check
-(`admin@gmail.com` / `admin@123`), since authentication wasn't covered in
-the Express/Sequelize tutorial. Everything behind it talks to the real API
-instead of `localStorage`.
+## REST API
 
-### UI redesign
+All API endpoints are prefixed with `/api`.
 
-The frontend follows a sidebar + topbar "internal business tool" design,
-per a separate design brief. **Both phases are done:**
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/health` | Health check |
+| POST | `/auth/login` | Authenticate a user and return a JWT |
+| POST | `/auth/register` | Register a new admin user |
+| GET | `/products` | List products, including supplier information |
+| GET | `/products/:id` | Get one product |
+| POST | `/products` | Create a product |
+| PUT | `/products/:id` | Update a product |
+| DELETE | `/products/:id` | Delete a product |
+| GET | `/products/:id/stock-movements` | Get a product's stock history |
+| POST | `/products/:id/stock-movements` | Adjust stock and record the movement |
+| GET | `/products/stock-movements` | Get the global stock-movement feed |
+| GET | `/suppliers` | List suppliers |
+| GET | `/suppliers/:id` | Get one supplier |
+| POST | `/suppliers` | Create a supplier |
+| PUT | `/suppliers/:id` | Update a supplier |
+| DELETE | `/suppliers/:id` | Delete a supplier |
 
-**Phase 1** — foundation:
-- Design tokens (color palette, spacing, radius, Inter typeface) in
-  `src/index.css`
-- `components/layout/` — `Sidebar`, `Topbar`, `AppShell`, `PageHeader`
-- `components/ui/` — `Button`, `Badge`, `EmptyState`, `ActionMenu`
-- `components/dashboard/` — `StatCard`, `StockAlerts`
-- `components/landing/` — `DashboardPreview` (a live, non-fake preview
-  built from real data, reused in the hero and the preview section)
-- Protected **Dashboard** page (`/dashboard`) — KPI cards, a
-  dependency-free "Products by Supplier" summary panel standing in for a
-  full chart, and a live Stock Alerts panel
-- Public **Home** landing page (`/`) — nav, hero, features, "how it
-  works" steps, dashboard preview, CTA, footer
-- Redesigned **Login** page (centered card)
+Validation failures return HTTP 400 responses with specific field-level error messages. Authentication failures use appropriate 401/403 responses, and missing resources return 404 responses.
 
-**Phase 2** — Products, Suppliers, and forms:
-- `components/products/` — `ProductFilters` (search/stock/supplier/sort),
-  `ProductRow`, `ProductTable` (with an `EmptyState` for zero results)
-- Redesigned **Products** page — search, stock/supplier filters, sort,
-  result count, a data table with SKU, thumbnail, stock badge, and a
-  `•••` action menu (View / Edit / Delete) instead of stacked text links
-- Redesigned **Product detail** page — breadcrumb, image + info card,
-  Inventory Information / Description / Supplier Information panels
-- Redesigned **Add/Edit Product** form — sectioned into Basic Information,
-  Inventory, Pricing, Supplier, and Product Image
-- Redesigned **Suppliers** page — search, a table with a live product
-  count per supplier and a `•••` action menu
-- New **Supplier Details** page (`/suppliers/:id`) — contact info and the
-  list of products that supplier provides
-- Redesigned **Add/Edit Supplier** form, matching the same sectioned style
+## Frontend Architecture
 
-Two small additive fields were added to support this (non-breaking -
-`sequelize.sync({ alter: true })` preserves existing data):
-- `sku` and `category` (both optional strings) on Product
-- `minStock` (integer, defaults to 5) - drives the Low/Critical stock
-  badges everywhere, instead of a number hardcoded in the UI
-- `costPrice` (optional float) alongside the existing `price`, so the
-  Pricing section can show Cost Price vs. Selling Price
+The frontend uses a shared `DataContext` and service layer rather than putting API calls directly inside page components.
 
-A few deliberate simplifications from the original design brief, to avoid
-adding backend complexity the coursework didn't call for:
-- No separate Category *table* - it's a plain optional text field, and the
-  Products filter/form use it as freeform text rather than a fixed list
-- No bulk-select checkboxes in the product table (no bulk actions were
-  specified for them to trigger)
-- No "Adjust Stock" quick-action - editing a product already covers
-  changing its quantity
-- Supplier "Status" is a static "Active" badge - there's no
-  activate/deactivate feature behind it
-- Stock History is left out entirely, since there's no backend
-  transaction log to source it from (per the brief's own guidance not to
-  invent fake data)
+```text
+Products.jsx / Dashboard.jsx / Forms
+            ↓
+        DataContext
+            ↓
+ productService / supplierService / authService
+            ↓
+          api.js
+            ↓
+       Fetch API
+            ↓
+      Express REST API
+```
 
-### Stock Movement Ledger + Inventory Trend Chart
+`DataContext` keeps shared product/supplier state. When a product is created, updated or deleted successfully, the context updates its React state so pages such as Products and Dashboard re-render with the latest data.
 
-Every quantity change is now recorded, not just silently applied:
+## Main Features
 
-- **`StockMovement`** — a new append-only table (`change`, `quantityAfter`,
-  `reason`, `createdAt`) linked to `Product`. Creating a product logs an
-  "Initial stock" entry; editing a product's quantity through the normal
-  form logs a "Manual edit" entry; a dedicated **Adjust Stock** action
-  (available from the Products table's `•••` menu and the product detail
-  page) logs a chosen reason (e.g. "Stock received", "Sale", "Damaged").
-  The quantity update and the ledger entry are written in a single
-  database transaction, so they can never drift apart.
-- **Stock History** — the product detail page now shows the full ledger
-  for that product (this was explicitly left out in an earlier pass for
-  lack of data - it isn't anymore).
-- **Inventory Value Trend chart** — the Dashboard's "Products by Supplier"
-  bar panel is now joined by a real line chart (via `recharts`), built by
-  walking every recorded movement chronologically and computing a running
-  total inventory value. This is a genuine chart fed by real data, not a
-  fabricated demo series - simplification worth knowing: since movements
-  don't store historical price, each step is valued at the product's
-  *current* price rather than its price at the time. The chart is
-  code-split (`React.lazy`) so `recharts` only loads when the Dashboard is
-  visited, not on every page.
-- New endpoints: `POST /products/:id/stock-movements` (adjust),
-  `GET /products/:id/stock-movements` (one product's history),
-  `GET /products/stock-movements` (global feed, powers the chart).
+### Dashboard
 
-### Profit Margins panel
+- Total products KPI
+- Total inventory/value statistics
+- Products-by-supplier summary
+- Low-stock alerts
+- Inventory value trend chart based on recorded stock movements
+- Profit margin analysis
+- Responsive dashboard cards and panels
 
-A new Dashboard panel ranks products by margin % using the existing
-`price`/`costPrice` fields - no backend changes needed.
+### Products
 
-### Dark mode
+- Create, read, update and delete products
+- Product image upload from the user's device
+- Search
+- Stock filtering
+- Supplier filtering
+- Sorting
+- Stock status badges
+- Product detail page
+- Supplier information displayed with each product
+- Stock adjustment action
 
-Every color in `index.css` is a CSS custom property, so dark mode is just
-a second set of variable values under `:root[data-theme="dark"]` - no
-component-level changes required. A `useTheme` hook persists the choice to
-`localStorage`, falls back to the OS preference on first visit, and an
-inline script in `index.html` applies it before React mounts (no flash of
-the wrong theme). Toggle button lives in the Topbar, the landing page nav,
-and the Login page.
+### Suppliers
 
-While auditing colors for dark-mode correctness, the entire pre-redesign
-legacy stylesheet (~200 lines of unused `nav`/`button`/`.card`/old badge
-styles, dead since every page was migrated to the new design in Phase 2)
-was confirmed unused and removed.
+- Full CRUD functionality
+- Supplier search
+- Product count per supplier
+- Supplier detail page showing supplied products
+- Supplier deletion protection when products still reference the supplier
 
-## Note on legacy files
+### Stock Movement Ledger
 
-`client/` still contains the original vanilla HTML/CSS/JS pages (`home.htm`,
-`products.htm`, `js/*.js`, root-level `style.css`, etc.) from before the React
-conversion. They aren't part of the running app (Vite serves `index.html` →
-`src/main.jsx`) and were left in place rather than deleted, in case they're
-still wanted for reference or grading — feel free to remove them if not.
+Every inventory quantity change is recorded in `StockMovement`:
+
+- Initial stock when a product is created
+- Manual quantity edits
+- Dedicated stock adjustments with reasons such as stock received, sale or damaged stock
+- Product-level stock history
+- Global movement feed for the dashboard trend chart
+
+Stock updates and their ledger entries are performed atomically in a database transaction.
+
+### Validation
+
+Client-side validation provides immediate feedback for required fields, numeric ranges, email formats and other form constraints.
+
+Server-side validation using `express-validator` is the source of truth and validates incoming API data independently of the client. Invalid requests return specific field-level messages rather than a generic error.
+
+### Image Upload
+
+Products use an actual file input. The selected image is read client-side as a base64 data URL and stored as text in SQLite. A text-only image URL is not used as the upload mechanism.
+
+### Responsive UI & Dark Mode
+
+The React interface is responsive across desktop, tablet and mobile layouts. The application also supports light/dark themes using CSS custom properties, with the selected theme persisted in local storage.
+
+## Low-Stock Behaviour
+
+Products use a configurable `minStock` threshold. The default value is 5 and the UI uses the product's threshold to determine stock status badges and dashboard alerts.
+
+## Legacy Files
+
+The `client/` directory still contains some original vanilla HTML/CSS/JS files from before the React conversion. They are retained for reference and are **not part of the active application**. The running application starts from Vite's `index.html` and `src/main.jsx`.
+
+## Version Control
+
+The project uses Git with multiple incremental commits documenting development, feature additions and fixes. The repository contains separate client and server projects within the coursework repository.
+
+## Deployment
+
+For production deployment, configure the required environment variables in the hosting platform, including a strong unique `JWT_SECRET`. Do not commit production secrets to the repository.
+
+The production application URL should be provided in the coursework report/submission.
