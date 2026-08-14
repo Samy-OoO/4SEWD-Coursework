@@ -18,7 +18,6 @@ A full-stack Inventory Management System built with **React + Vite** on the clie
 - **ORM:** Sequelize
 - **Validation:** express-validator + HTML5/client-side validation
 - **Authentication:** JWT + bcrypt password hashing
-- **Charts:** Recharts
 - **HTTP:** Fetch API through a shared API service
 
 ## Prerequisites
@@ -198,8 +197,7 @@ Products.jsx / Dashboard.jsx / Forms
 - Total inventory/value statistics
 - Products-by-supplier summary
 - Low-stock alerts
-- Inventory value trend chart based on recorded stock movements
-- Profit margin analysis
+- Recorded stock movements
 - Responsive dashboard cards and panels
 
 ### Products
@@ -213,7 +211,7 @@ Products.jsx / Dashboard.jsx / Forms
 - Stock status badges
 - Product detail page
 - Supplier information displayed with each product
-- Stock adjustment action
+- Stock adjustment
 
 ### Suppliers
 
@@ -231,9 +229,8 @@ Every inventory quantity change is recorded in `StockMovement`:
 - Manual quantity edits
 - Dedicated stock adjustments with reasons such as stock received, sale or damaged stock
 - Product-level stock history
-- Global movement feed for the dashboard trend chart
 
-Stock updates and their ledger entries are performed atomically in a database transaction.
+Stock updates are performed in a database transaction.
 
 ### Validation
 
@@ -263,6 +260,4 @@ The project uses Git with multiple incremental commits documenting development, 
 
 ## Deployment
 
-For production deployment, configure the required environment variables in the hosting platform, including a strong unique `JWT_SECRET`. Do not commit production secrets to the repository.
-
-The production application URL should be provided in the coursework report/submission.
+Deployed on Render for production deployment, configured the required environment variables in the hosting platform, including a strong unique `JWT_SECRET`. 
